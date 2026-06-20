@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Интерактивный класс — Английский язык</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --panel-bg: #ffffff;
+            --accent: #4f46e5;
+            --text-main: #1f2937;
+            --border: #e5e7eb;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+        }
+
+        /* ИНТЕРАКТИВНЫЙ ХОЛСТ (РАБОЧАЯ ЗОНА ДОСКИ) */
+        .board-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            padding: 20px;
+        }
+
+        .board-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .board-canvas {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* БОКОВАЯ ПАНЕЛЬ СВЯЗИ */
+        .communication-panel {
+            width: 380px;
+            background: var(--panel-bg);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease, width 0.3s ease;
+            box-shadow: -4px 0 10px rgba(0,0,0,0.02);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Состояние, когда панель свернута */
+        .communication-panel.collapsed {
+            width: 0;
+            transform: translateX(100%);
+        }
+
+        .panel-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafafa;
+        }
+
+        /* ПЕРЕКЛЮЧАТЕЛЬ ПРОВАЙДЕРОВ СВЯЗИ */
+        .provider-tabs {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            padding: 10px;
+            background: #f3f4f6;
+            margin: 10px;
+            border-radius: 8px;
+        }
+
+        .tab-btn {
+            border: none;
+            padding: 8px 4px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            background: transparent;
+            color: #6b7280;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: var(--accent);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* ЗОНА ОТОБРАЖЕНИЯ ВИДЕОЗВОНКА */
+        .video-container-area {
+            flex: 1;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+        }
+
+        .engine-content {
+            display: none;
+            height: 100%;
+            flex-direction: column;
+        }
+
+        .engine-content.active {
+            display: flex;
+        }
+
+        /* СТИЛИ ДЛЯ ВСТРОЕННОГО JITSI */
+        #jitsi-iframe-container {
+            width: 100%;
+            height: 100%;
+            min-height: 400px;
+            background: #111827;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .start-call-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: auto;
+            transition: background 0.2s;
+        }
+
+        .start-call-btn:hover {
+            background: #059669;
+        }
+
+        /* ПОЛЯ ДЛЯ ССЫЛОК СТОРОННИХ СЕРВИСОВ */
+        .link-input-box {
+            background: #f9fafb;
+            border: 1px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .link-input-box input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+        }
+
+        /* КНОПКА ТРИГГЕР ДЛЯ ОТКРЫТИЯ/ЗАКРЫТИЯ ПАНЕЛИ */
+        .toggle-panel-btn {
+            position: absolute;
+            left: -45px;
+            top: 15px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-weight: bold;
+        }
+
+        /* Временная заглушка для карточки задания */
+        .demo-task {
+            padding: 30px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            text-align: center;
+            color: #94a3b8;
+        }
+    </style>
+    <script src="https://meet.jit.si/external_api.js"></script>
+</head>
+<body>
+
+    <div class="board-container">
+        <div class="board-header">
+            <h2>English Class Canvas 📝</h2>
+            <div>Ученик: <strong>Алексей</strong> (Статус: В сети)</div>
+        </div>
+        
+        <div class="board-canvas">
+            <div class="demo-task">
+                <h3>Здесь будет Модуль 3 (Интерактивные задания)</h3>
+                <p>Вы сможете перетаскивать элементы, вставлять видео из TikTok и YouTube</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="communication-panel" id="commPanel">
+        <button class="toggle-panel-btn" onclick="togglePanel()">📹</button>
+
+        <div class="panel-header">
+            <h3>Видеосвязь и Шеринг</h3>
+        </div>
+
+        <div class="provider-tabs">
+            <button class="tab-btn active" onclick="switchEngine('jitsi', this)">Jitsi</button>
+            <button class="tab-btn" onclick="switchEngine('meet', this)">Google</button>
+            <button class="tab-btn" onclick="switchEngine('discord', this)">Discord</button>
+            <button class="tab-btn" onclick="switchEngine('zoom', this)">Zoom</button>
+        </div>
+
+        <div class="video-container-area">
+            
+            <div id="engine-jitsi" class="engine-content active">
+                <div id="jitsi-iframe-container">
+                    <div style="color: #9ca3af; padding: 40px; text-align: center; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+                        <p style="margin-bottom: 15px;">Встроенный видеодвижок (без лимитов по времени)</p>
+                        <button class="start-call-btn" onclick="initJitsi()">▶️ Запустить видеосвязь</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="engine-meet" class="engine-content">
+                <div class="link-input-box">
+                    <h4>Интеграция Google Meet</h4>
+                    <p style="font-size: 13px; color: #6b7280; margin-top: 5px;">Вставьте ссылку на созданную встречу Google Meet, чтобы отобразить её на доске:</p>
+                    <input type="text" placeholder="https://meet.google.com/abc-defg-hij">
+                </div>
+            </div>
+
+            <div id="engine-discord" class="engine-content">
+                <div class="link-input-box">
+                    <h4>Канал Discord</h4>
+                    <p style="font-size: 13px; color: #6b7280; margin-top: 5px;">Ссылка на голосовой или видео-канал вашей группы:</p>
+                    <input type="text" placeholder="https://discord.gg/your-channel-link">
+                </div>
+            </div>
+
+            <div id="engine-zoom" class="engine-content">
+                <div class="link-input-box">
+                    <h4>Конференция Zoom</h4>
+                    <p style="font-size: 13px; color: #6b7280; margin-top: 5px;">Поле для быстрой синхронизации конференции с учеником:</p>
+                    <input type="text" placeholder="https://zoom.us/j/0123456789">
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Функция сворачивания и разворачивания шторки связи
+        function togglePanel() {
+            const panel = document.getElementById('commPanel');
+            panel.classList.toggle('collapsed');
+        }
+
+        // Логика переключения вкладок провайдеров
+        function switchEngine(engineId, element) {
+            // Убираем активный класс у всех кнопок-табов
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            // Делаем активной текущую кнопку
+            element.classList.add('active');
+
+            // Скрываем все зоны контента движков
+            document.querySelectorAll('.engine-content').forEach(content => content.classList.remove('active'));
+            // Показываем выбранный движок
+            document.getElementById(`engine-${engineId}`).classList.add('active');
+        }
+
+        // Функция инициализации встроенного созвона Jitsi
+        function initJitsi() {
+            const container = document.getElementById('jitsi-iframe-container');
+            container.innerHTML = ""; // Очищаем заглушку с кнопкой
+            
+            // Генерируем случайное уникальное имя комнаты для урока, чтобы никто чужой не вошел
+            const roomName = "EnglishClassroomRoom_" + Math.floor(Math.random() * 1000000);
+            
+            const domain = "meet.jit.si";
+            const options = {
+                roomName: roomName,
+                width: '100%',
+                height: '100%',
+                parentNode: container,
+                lang: 'ru',
+                interfaceConfigOverwrite: {
+                    // Оставляем только нужные нам кнопки управления
+                    TOOLBAR_BUTTONS: [
+                        'microphone', 'camera', 'desktop', 'fullscreen',
+                        'fodeviceselection', 'hangup', 'chat', 'raisehand'
+                    ],
+                }
+            };
+            
+            // Запуск самого фрейма созвона
+            const api = new JitsiMeetExternalAPI(domain, options);
+        }
+    </script>
+</body>
+</html>
