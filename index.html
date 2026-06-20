@@ -3,63 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Board Studio — Шаг 1.1</title>
+    <title>English Board Studio — Пульт Управления</title>
     <style>
         :root {
             --accent-orange: #ff7a00;
             --accent-orange-hover: #e06b00;
-            --bg-gray: #ffffff;
+            --bg-gray: #f8f9fa;
             --text-color: #2c3e50;
             --border-radius: 12px;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
-        body, html { width: 100%; height: 100%; background-color: var(--bg-gray); overflow: hidden; }
+        body, html { width: 100%; height: 100%; background-color: var(--bg-gray); color: var(--text-color); }
 
-        /* --- ЭКРАН 1: ПУЛЬТ УПРАВЛЕНИЯ --- */
-        .app-container { max-width: 900px; margin: 0 auto; padding: 30px 20px; overflow-y: auto; height: 100%; }
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 2px solid #f2f2f2; }
-        header h1 { font-size: 26px; font-weight: 700; }
-        .btn-create { background-color: var(--accent-orange); color: white; border: none; padding: 12px 20px; font-size: 15px; font-weight: 600; border-radius: var(--border-radius); cursor: pointer; }
+        .app-container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 2px solid #eef2f5; }
+        header h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+        .btn-create { background-color: var(--accent-orange); color: white; border: none; padding: 12px 24px; font-size: 15px; font-weight: 600; border-radius: var(--border-radius); cursor: pointer; transition: background 0.2s; }
         .btn-create:hover { background-color: var(--accent-orange-hover); }
         
         .section { margin-bottom: 40px; }
-        .section h2 { font-size: 18px; margin-bottom: 20px; color: #4a4a4a; display: flex; align-items: center; gap: 8px; }
-        .boards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .section h2 { font-size: 18px; margin-bottom: 20px; color: #4a5568; display: flex; align-items: center; gap: 8px; font-weight: 700; }
+        .boards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
         
         .board-card {
-            background: white; border-radius: var(--border-radius); padding: 20px; position: relative;
-            display: flex; flex-direction: column; justify-content: space-between; min-height: 160px;
-            border: 2px solid #f0f0f0; transition: border-color 0.2s;
+            background: white; border-radius: var(--border-radius); padding: 22px; position: relative;
+            display: flex; flex-direction: column; justify-content: space-between; min-height: 180px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            border: 2px solid transparent; transition: all 0.2s;
         }
-        .board-card:hover { border-color: var(--accent-orange); }
-        .board-title { font-size: 18px; font-weight: 600; margin-right: 30px; }
+        .board-card:hover { border-color: var(--accent-orange); transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.08); }
         
-        /* Кнопка булавки */
-        .pin-btn { position: absolute; top: 18px; right: 18px; background: none; border: none; font-size: 18px; cursor: pointer; opacity: 0.2; transition: opacity 0.2s; }
+        .board-header { display: flex; justify-content: space-between; align-items: flex-start; margin-right: 25px; }
+        .board-title { font-size: 18px; font-weight: 700; color: #1a202c; word-break: break-word; line-height: 1.4; }
+        
+        /* Кнопки управления в верхнем углу карточки */
+        .top-controls { position: absolute; top: 18px; right: 15px; display: flex; flex-direction: column; gap: 8px; }
+        .pin-btn, .edit-btn { background: none; border: none; font-size: 16px; cursor: pointer; opacity: 0.25; transition: opacity 0.2s, transform 0.1s; }
         .board-card.pinned .pin-btn { opacity: 1; }
-        .pin-btn:hover { opacity: 1; }
+        .pin-btn:hover, .edit-btn:hover { opacity: 1; transform: scale(1.15); }
 
-        .board-actions { display: flex; gap: 8px; margin-top: 20px; }
-        .btn-act { flex: 2; padding: 10px 8px; font-size: 13px; font-weight: 600; border-radius: 8px; border: 2px solid var(--accent-orange); cursor: pointer; background: transparent; color: var(--accent-orange); }
+        .board-actions { display: flex; gap: 8px; margin-top: 24px; }
+        .btn-act { flex: 2; padding: 10px 12px; font-size: 13px; font-weight: 700; border-radius: 8px; border: 2px solid var(--accent-orange); cursor: pointer; background: transparent; color: var(--accent-orange); display: flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.2s; }
+        .btn-act:hover { background: rgba(255, 122, 0, 0.05); }
         .btn-act.primary { background: var(--accent-orange); color: white; }
-        .btn-act.danger { flex: 1; border-color: #e0e0e0; color: #999; max-width: 45px; }
-        .btn-act.danger:hover { color: #e74c3c; border-color: #e74c3c; background: #fdeded; }
+        .btn-act.primary:hover { background: var(--accent-orange-hover); border-color: var(--accent-orange-hover); }
+        .btn-act.icon-only { flex: 1; max-width: 42px; border-color: #e2e8f0; color: #718096; }
+        .btn-act.icon-only:hover { border-color: var(--accent-orange); color: var(--accent-orange); }
+        .btn-act.danger { flex: 1; border-color: #e2e8f0; color: #a0aec0; max-width: 42px; }
+        .btn-act.danger:hover { color: #e53e3e; border-color: #fed7d7; background: #fff5f5; }
 
-        .empty-text { color: #aaa; font-style: italic; grid-column: 1/-1; }
-
-        /* --- ЭКРАН 2: ИНТЕРАКТИВНАЯ ДОСКА --- */
-        #board-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #eef2f5; z-index: 100; display: none; overflow: hidden; }
-        #canvas { position: absolute; width: 5000px; height: 5000px; background-color: #ffffff; background-image: radial-gradient(#e0e0e0 1px, transparent 1px); background-size: 24px 24px; cursor: grab; }
-        #canvas:active { cursor: grabbing; }
-
-        .top-bar {
-            position: fixed; top: 15px; left: 15px; right: 15px; height: 60px;
-            background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); border-radius: 12px; border: 1px solid #e0e0e0;
-            display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); z-index: 110;
-        }
-        .back-btn { background: none; border: none; font-size: 16px; font-weight: 600; color: var(--accent-orange); cursor: pointer; }
-        .board-main-title { font-size: 18px; font-weight: 700; }
+        .empty-text { color: #a0aec0; font-style: italic; grid-column: 1/-1; padding: 20px 0; }
     </style>
 </head>
 <body>
@@ -83,41 +77,18 @@
         </div>
     </div>
 
-    <div id="board-screen">
-        <div class="top-bar">
-            <button class="back-btn" id="panel-back-btn" onclick="closeBoard()">↩ К пульту</button>
-            <div class="board-main-title" id="display-title">Учебная комната</div>
-            <div style="width: 80px;"></div>
-        </div>
-
-        <div id="canvas" style="top: -2000px; left: -2000px;">
-            <div style="position: absolute; top: 2100px; left: 2200px; font-size: 20px; color: #aaa; pointer-events: none;">
-                📍 Центр доски. Скоро здесь появятся инструменты!
-            </div>
-        </div>
-    </div>
-
     <script>
-        // ЗАГРУЗКА ИЗ ПАМЯТИ: если в браузере уже есть доски, берем их, если нет — создаем пустой массив
+        // Инициализация базы данных досок из локальной памяти
         let boards = JSON.parse(localStorage.getItem('studio_saved_boards')) || [];
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const activeRoom = urlParams.get('room');
+        // При запуске сразу отрисовываем существующие карточки
+        renderBoards();
 
-        if (activeRoom) {
-            document.getElementById('teacher-panel').style.display = 'none';
-            document.getElementById('panel-back-btn').style.display = 'none';
-            openBoard(decodeURIComponent(activeRoom));
-        } else {
-            renderBoards();
-        }
-
-        // Отрисовка списков досок (обычных и закрепленных)
+        // Главная функция отрисовки интерфейса пульты управления
         function renderBoards() {
             const allGrid = document.getElementById('all-boards-grid');
             const pinnedGrid = document.getElementById('pinned-boards-grid');
             const pinnedSection = document.getElementById('pinned-section');
-            const noMsg = document.getElementById('no-boards-msg');
 
             allGrid.innerHTML = '';
             pinnedGrid.innerHTML = '';
@@ -125,56 +96,114 @@
             const pinnedBoards = boards.filter(b => b.pinned);
             const regularBoards = boards.filter(b => !b.pinned);
 
-            // Управляем видимостью закрепленного блока
+            // Обработка закрепленных досок
             if (pinnedBoards.length > 0) {
                 pinnedSection.style.display = 'block';
-                pinnedBoards.forEach(b => pinnedGrid.appendChild(createCardHTML(b)));
+                pinnedBoards.forEach(b => pinnedGrid.appendChild(createCardElement(b)));
             } else {
                 pinnedSection.style.display = 'none';
             }
 
-            // Управляем списком остальных досок
+            // Обработка обычных досок
             if (regularBoards.length > 0) {
-                if(noMsg) noMsg.style.display = 'none';
-                regularBoards.forEach(b => allGrid.appendChild(createCardHTML(b)));
-            } else {
-                if (pinnedBoards.length === 0) {
-                    allGrid.innerHTML = '<div class="empty-text" id="no-boards-msg">Досок пока нет. Нажмите «Создать доску»!</div>';
-                }
+                regularBoards.forEach(b => allGrid.appendChild(createCardElement(b)));
+            } else if (pinnedBoards.length === 0) {
+                allGrid.innerHTML = '<div class="empty-text" id="no-boards-msg">Досок пока нет. Нажмите «Создать доску»!</div>';
             }
         }
 
-        // Функция сборки карточки доски
-        function createCardHTML(board) {
+        // Генерация DOM-структуры карточки
+        function createCardElement(board) {
             const card = document.createElement('div');
             card.className = `board-card ${board.pinned ? 'pinned' : ''}`;
             card.innerHTML = `
-                <button class="pin-btn" onclick="togglePin('${board.id}', event)" title="Закрепить сверху">📌</button>
-                <div>
-                    <div class="board-title">${board.title}</div>
+                <div class="board-header">
+                    <div class="board-title" id="title-${board.id}">${board.title}</div>
                 </div>
+                
+                <div class="top-controls">
+                    <button class="pin-btn" onclick="togglePin('${board.id}', event)" title="Закрепить сверху">📌</button>
+                    <button class="edit-btn" onclick="renameBoard('${board.id}', event)" title="Переименовать">✏️</button>
+                </div>
+
                 <div class="board-actions">
-                    <button class="btn-act primary" onclick="openBoard('${board.title}')">Открыть</button>
-                    <button class="btn-act" onclick="copyStudentLink('${board.title}')">🔗 Ссылка</button>
-                    <button class="btn-act danger" onclick="deleteBoard('${board.id}', event)">🗑️</button>
+                    <button class="btn-act primary" onclick="goToBoard('${board.id}')">Открыть</button>
+                    <button class="btn-act" onclick="copyStudentLink('${board.id}')">🔗 Ссылка</button>
+                    <button class="btn-act icon-only" onclick="duplicateBoard('${board.id}', event)" title="Дублировать шаблон">🔮</button>
+                    <button class="btn-act danger" onclick="deleteBoard('${board.id}', event)" title="Удалить">🗑️</button>
                 </div>
             `;
             return card;
         }
 
+        // Создание новой пустой доски
         function createNewBoard() {
             const title = prompt("Введите имя ученика или название группы:");
             if (!title || !title.trim()) return;
             
+            const newId = 'b_' + Date.now();
             boards.push({ 
-                id: 'b_' + Date.now(), 
+                id: newId, 
                 title: title.trim(),
                 pinned: false 
             });
             saveAndRefresh();
         }
 
-        // Переключение булавки (закрепить/открепить)
+        // Перенаправление преподавателя в файл доски с передачей ID
+        function goToBoard(id) {
+            window.location.href = `board.html?room=${id}`;
+        }
+
+        // Генерация ссылки исключительно для учеников (сразу на файл board.html)
+        function copyStudentLink(id) {
+            let currentPath = window.location.pathname;
+            let basePath = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
+            let studentLink = window.location.origin + basePath + `board.html?room=${id}`;
+            
+            navigator.clipboard.writeText(studentLink).then(() => {
+                alert(`Ученик получит доступ только к этой изолированной комнате!\nСсылка успешно скопирована.`);
+            });
+        }
+
+        // Дублирование (создание копии шаблона)
+        function duplicateBoard(id, event) {
+            event.stopPropagation();
+            const sourceBoard = boards.find(b => b.id === id);
+            if (!sourceBoard) return;
+
+            const newId = 'b_' + Date.now();
+            
+            // Дублируем метаданные в списке комнат
+            boards.push({
+                id: newId,
+                title: sourceBoard.title + " (Копия)",
+                pinned: false
+            });
+
+            // Дублируем содержимое самого холста в локальной памяти (если оно существует)
+            const sourceContent = localStorage.getItem(`canvas_content_${id}`);
+            if (sourceContent) {
+                localStorage.setItem(`canvas_content_${newId}`, sourceContent);
+            }
+
+            saveAndRefresh();
+        }
+
+        // Переименование комнаты
+        function renameBoard(id, event) {
+            event.stopPropagation();
+            const board = boards.find(b => b.id === id);
+            if (!board) return;
+
+            const newTitle = prompt("Введите новое название комнаты:", board.title);
+            if (!newTitle || !newTitle.trim() || newTitle.trim() === board.title) return;
+
+            board.title = newTitle.trim();
+            saveAndRefresh();
+        }
+
+        // Переключение статуса фиксации (булавка)
         function togglePin(id, event) {
             event.stopPropagation();
             const board = boards.find(b => b.id === id);
@@ -184,61 +213,21 @@
             }
         }
 
-        // Удаление доски
+        // Полное удаление доски и связанного с ней контента холста
         function deleteBoard(id, event) {
             event.stopPropagation();
-            if (confirm("Вы уверены, что хотите удалить эту доску и доступ к ней?")) {
+            if (confirm("Вы уверены, что хотите безвозвратно удалить эту доску, все материалы на ней и закрыть доступ ученикам?")) {
                 boards = boards.filter(b => b.id !== id);
+                localStorage.removeItem(`canvas_content_${id}`); // Чистим память холста
                 saveAndRefresh();
             }
         }
 
-        // АВТОСОХРАНЕНИЕ: записывает текущее состояние в память браузера
+        // Синхронизация данных с хранилищем браузера
         function saveAndRefresh() {
             localStorage.setItem('studio_saved_boards', JSON.stringify(boards));
             renderBoards();
         }
-
-        function copyStudentLink(title) {
-            let baseLink = window.location.href.split('?')[0];
-            let studentLink = baseLink + `?room=${encodeURIComponent(title)}`;
-            navigator.clipboard.writeText(studentLink).then(() => {
-                alert(`Ссылка для этой комнаты скопирована!\nОтправьте её ученику.`);
-            });
-        }
-
-        // --- ЛОГИКА ХОЛСТА ---
-        let currentX = -2000, currentY = -2000, isDragging = false, startX, startY;
-        const canvas = document.getElementById('canvas');
-
-        function openBoard(title) {
-            document.getElementById('teacher-panel').style.display = 'none';
-            document.getElementById('board-screen').style.display = 'block';
-            document.getElementById('display-title').innerText = title;
-            canvas.style.left = currentX + 'px'; 
-            canvas.style.top = currentY + 'px';
-        }
-
-        function closeBoard() {
-            document.getElementById('board-screen').style.display = 'none';
-            document.getElementById('teacher-panel').style.display = 'block';
-            renderBoards();
-        }
-
-        document.addEventListener('mousedown', (e) => {
-            if(e.target.id !== 'canvas' && e.target.id !== 'board-screen') return;
-            isDragging = true; 
-            startX = e.pageX - currentX; 
-            startY = e.pageY - currentY;
-        });
-        document.addEventListener('mousemove', (e) => {
-            if(!isDragging) return;
-            currentX = e.pageX - startX; 
-            currentY = e.pageY - startY;
-            canvas.style.left = currentX + 'px'; 
-            canvas.style.top = currentY + 'px';
-        });
-        document.addEventListener('mouseup', () => isDragging = false);
     </script>
 </body>
 </html>
